@@ -25,5 +25,3 @@ def execute_demo(language):
 if __name__ == '__main__':
     execute_demo('english')
     execute_demo('spanish')
-
-
