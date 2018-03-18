@@ -3,7 +3,7 @@ from utils.baseline import Baseline
 from utils.scorer import report_score
 from collections import Counter
 from sklearn.linear_model import LogisticRegression
-import spacy,nltk,csv
+import spacy,nltk,csv,math
 
 class ComplexityClassifier(object):
 
@@ -35,11 +35,8 @@ class ComplexityClassifier(object):
 
     def calc_unigram_prob(self,data):
         u_prob = {} #defaultdict
-        unique_words = Counter([word for sent in data for word in sent['target_word'].split(' ')])
-        print(len(unique_words))
-        for word in unique_words:
-            if word in self.corpus_words:
-                u_prob[word] = self.unigram_counts[word]/self.total_words
+        for word in self.unigram_counts:
+            u_prob[word] = self.unigram_counts[word]/self.total_words
         return u_prob
 
     def read_file(self,file_name):
@@ -50,16 +47,19 @@ class ComplexityClassifier(object):
         return u_prob
 
     def get_unigram_prob(self,target_phrase):
-        prob = 1.0
+        #print('here')
+        prob = 1.0 
         for word in target_phrase.split(' '):
-            if word in self.corpus_words:
+            if word in self.u_prob:
                 prob *= self.u_prob[word]
-        return prob
+            else:
+                prob *= 8.611840246918683e-07
+        return math.log(prob)
 
     def set_u_prob(self,u_prob):
         self.u_prob = u_prob
 
-    def extract_features(self,data, key, max_token_length, baseline_features = True, pos = True, unigram_probs = True, NE = True):
+    def extract_features(self,data, key, max_token_length, baseline_features = True, pos = True, unigram_probs = True, NE = False):
         if baseline_features:
             baseline = Baseline(self.language)
             print('Features: Baseline features')
@@ -75,7 +75,6 @@ class ComplexityClassifier(object):
             if unigram_probs:
                 #print(target_phrase)
                 instance_features += [self.get_unigram_prob(target_phrase)]
-                #print(instance_features)
 
             if baseline_features:
                 instance_features += baseline.extract_features(target_phrase)
@@ -87,7 +86,7 @@ class ComplexityClassifier(object):
                 if not f: #target phrase is not in ents
                     f = [0.0]
                 instance_features += f
-
+           # print(instance_features)
             features.append(instance_features)
         return self.pad_features(features, max_token_length)
 
