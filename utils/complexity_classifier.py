@@ -59,7 +59,7 @@ class ComplexityClassifier(object):
     def set_u_prob(self,u_prob):
         self.u_prob = u_prob
 
-    def extract_features(self,data, key, max_token_length, baseline_features = True, pos = True, unigram_probs = True, NE = False):
+    def extract_features(self,data, key, max_token_length, baseline_features = True, pos = False, unigram_probs = False, NE = False):
         if baseline_features:
             baseline = Baseline(self.language)
             print('Features: Baseline features')
