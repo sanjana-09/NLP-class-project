@@ -11,7 +11,7 @@ class Baseline(object):
         else:  # spanish
             self.avg_word_length = 6.2
 
-        self.model = LogisticRegression()
+        #self.model = LogisticRegression()
 
     def extract_features(self, word):
         len_chars = len(word) / self.avg_word_length
