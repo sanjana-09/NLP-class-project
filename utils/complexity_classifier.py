@@ -29,7 +29,8 @@ class ComplexityClassifier(object):
 
         self.model = SVC(class_weight = 'balanced')
         print('svc balanced')
-       #self.model = LogisticRegression()
+        # self.model = LogisticRegression()
+        # print(self.model)
 
     #save TF-IDF dict to file
     def save_to_file(self,u_prob,file_name):
@@ -53,22 +54,26 @@ class ComplexityClassifier(object):
                 #if prob > self.u_prob[word]:
                 prob *= self.u_prob[word] #frq of least frequent word in phrase
             else:
-                prob *= 8.611840246918683e-07 #lowest prob
+                if(self.language == 'english'):
+                    prob *= 8.611840246918683e-07 #lowest prob
+                else:
+                    prob *= 5.189817577912136e-06
+
                 #prob = 1.0
         return math.log(prob)
 
-    def get_unigram_freq(self,target_phrase):
-        #print('here')
-        freq = 1.0
-        words = target_phrase.split(' ')
-        for word in words:
-            if word in self.u_freq:
-                if freq > self.u_freq[word]:
-                    freq = self.u_freq[word] #frq of least frequent word in phrase
-            else:
-                #prob *= 8.611840246918683e-07 #lowest prob
-                freq = 1.0
-        return math.log(freq)
+    # def get_unigram_freq(self,target_phrase):
+    #     #print('here')
+    #     freq = 1.0
+    #     words = target_phrase.split(' ')
+    #     for word in words:
+    #         if word in self.u_freq:
+    #             if freq > self.u_freq[word]:
+    #                 freq = self.u_freq[word] #frq of least frequent word in phrase
+    #         else:
+    #             #prob *= 8.611840246918683e-07 #lowest prob
+    #             freq = 1.0
+    #     return math.log(freq)
 
     def get_word_emb(self,target_phrase):
         return list(self.word_emb[()][target_phrase])
@@ -79,59 +84,31 @@ class ComplexityClassifier(object):
     def set_u_prob(self,u_prob):
         self.u_prob = u_prob
 
-    # def set_u_freq(self,u_freq):
-    #     self.u_freq = u_freq
-
     def set_word_emb(self,word_emb):
         self.word_emb = word_emb
 
-    # def get_number_syn(self, target_phrase):
-    #     #print('here')
-    #     synonyms = []
-    #     senses = []
-    #     words = target_phrase.split(' ')
-    #     #words = ['dog', 'cat', 'computer']
-    #     for word in words:
-    #         senses.append(wordnet.synsets(word))
-    #     #print(senses)
-    #     senses = min(senses, key = len) #senses belonging to word with minimum senses - more determining of complexity
-    #     #print(senses)
-    #     senses = [str(sense)[8:-2] for sense in senses]
-    #     #print(senses)
-    #     #ioho
-    #     for sense in senses:
-    #         synonyms += [str(lemma.name()) for lemma in wordnet.synset(sense).lemmas()]
-    #     # print(words)
-    #     # print(senses)
-    #     # #print(synonyms)
-    #     # print([sense for sense in (Counter(synonyms))])
-    #     # print(len(Counter(synonyms)))
-    #     # ewrew
-    #     return len(Counter(synonyms))
-
     def get_number_syn(self, target_phrase):
-        #print('here')
         synonyms = []
         senses = []
         words = target_phrase.split(' ')
-        #words = ['dog', 'cat', 'computer']
         for word in words:
             senses += wordnet.synsets(word)
-        #print(senses)
-        #senses = min(senses, key = len) #senses belonging to word with minimum senses - more determining of complexity
-        #print(senses)
         senses = [str(sense)[8:-2] for sense in senses]
-        #print(senses)
-        #ioho
         for sense in senses:
             synonyms += [str(lemma.name()) for lemma in wordnet.synset(sense).lemmas()]
-        # print(words)
-        # print(senses)
-        # #print(synonyms)
-        # print([sense for sense in (Counter(synonyms))])
-        # print(len(Counter(synonyms)))
-        # ewrew
-        return len(Counter(synonyms))/len(words)
+        return len(Counter(synonyms))
+
+
+    def get_sp_number_syn(self, target_phrase):
+        synonyms =[]
+        senses = []
+        words = target_phrase.split(' ')
+        for word in words:
+            senses+=wordnet.synsets(word, lang = 'spa')
+        senses = [str(sense)[8:-2] for sense in senses]
+        for sense in senses:
+            synonyms += wordnet.synset(sense).lemma_names('spa')
+        return len(Counter(synonyms))
 
 
     def extract_features(self,data, key, max_token_length, word_emb = False,
@@ -153,11 +130,19 @@ class ComplexityClassifier(object):
             print('Features: Word embeddings')
             if test:
                 print('word emb test')
-                word_vectors_nlp = spacy.load('en_vectors_web_lg')
+                if (self.language == 'english'):
+                    word_vectors_nlp = spacy.load('en_vectors_web_lg')
+                else:
+                    word_vectors_nlp = spacy.load('es_core_news_md')
         if syn:
             print('Features: syn')
         features = []
+        n = 0
+        i =-1
+        print(len(data))
         for sent in data:
+            i += 1
+            
             target_phrase = sent[key]
             instance_features = []
             #self.get_number_syn(target_phrase)
@@ -179,7 +164,10 @@ class ComplexityClassifier(object):
                 else:
                     instance_features += self.get_word_emb(target_phrase)
             if syn:
-                instance_features += [self.get_number_syn(target_phrase)]
+                if(self.language == 'english'):
+                    instance_features += [self.get_number_syn(target_phrase)]
+                else:
+                    instance_features += [self.get_sp_number_syn(target_phrase)]
 
             if pos:
                 instance_features += [token.pos for token in self.nlp(target_phrase)]
@@ -188,11 +176,16 @@ class ComplexityClassifier(object):
                 f = [ent.label for ent in self.nlp(target_phrase).ents]
                 if not f: #target phrase is not in ents
                     f = [0.0]
+                else:
+                    n += 1        #jopp
                 instance_features += f
-
+            # if i == len(data)-1:
+            #     print(n)
+            #     upou
             features.append(instance_features)
-            features = self.pad_features(features,max_token_length)
-        return coo_matrix(np.array(features).reshape(len(features),max_token_length))
+        features = self.pad_features(features,max_token_length)
+        array = np.array(features).reshape(len(features),max_token_length)
+        return coo_matrix(array), n
         #return coo_matrix(np.array(features).reshape(len(features),300))
 
     def train(self, features, labels):
