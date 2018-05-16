@@ -49,6 +49,7 @@ def execute(language):
     def train_and_test(max_token_length = 315, word_emb = False, baseline = False, pos = False,
         unigram_probs = False, syn = False, NE = False):
         MAX_TOKEN_LENGTH = max_token_length
+
         train_features, n = complexity_classifier.extract_features(data.trainset,'target_word', MAX_TOKEN_LENGTH, word_emb = word_emb, 
         baseline = baseline, pos = pos, unigram_probs = unigram_probs, syn = syn, NE = NE)
 
@@ -60,20 +61,32 @@ def execute(language):
         test_features,n = complexity_classifier.extract_features(data.devset,'target_word',MAX_TOKEN_LENGTH, 
         word_emb = word_emb, baseline = baseline, pos = pos, unigram_probs = unigram_probs, 
         syn = syn, NE = NE, test = True)
-
-        # predictions = complexity_classifier.test(val_features)
-        # report_score(val_labels, predictions, detailed = True)
-
         predictions = complexity_classifier.test(test_features)
+        #predictions = complexity_classifier.test(val_features)
         report_score(val_labels, predictions, detailed = True)
+        #report_score(test_labels, predictions, detailed = True)
 
-    train_and_test(max_token_length = 2, baseline = True, unigram_probs = True, word_emb = True, syn = True)
+    train_and_test(max_token_length =  303, word_emb = True, unigram_probs = True, baseline = True, synonyms = True)
     # train_and_test(max_token_length = 3, baseline= True, unigram_probs = True)
     # train_and_test(max_token_length = 303, baseline = True, unigram_probs = True, word_emb = True)
     # train_and_test(max_token_length = 304, baseline = True, unigram_probs = True, word_emb = True, syn = True)
     #train_and_test(max_token_length = 315, baseline = True, word_emb = True, unigram_probs = True, syn = True)
 
 if __name__ == '__main__':
-    execute('english')
-    #execute_demo('spanish')
+    execute('spanish')
+    #execute_demo('spanish')        # 
+        # misclassified_idx = []
+        # for i in range(len(predictions)):
+        #     if predictions[i] != test_labels[i]:
+        #         misclassified_idx.append(i)
+        # print('Target Phrase\t', 'Correct Label\t', 'Predicted Label\t')
+
+        # for idx in misclassified_idx:
+        #     if test_labels[idx] =='0':
+        #         print(data.testset[idx]['target_word']+'\t',test_labels[idx]+'\t', predictions[idx]+'\t')
+
+        # for idx in misclassified_idx:
+        #     if test_labels[idx] == '1': #complex:
+        #         print(data.testset[idx]['target_word']+'\t',test_labels[idx]+'\t', predictions[idx]+'\t')
+        # jdnhf
 

@@ -132,7 +132,7 @@ class ComplexityClassifier(object):
                 print('word emb test')
                 if (self.language == 'english'):
                     word_vectors_nlp = spacy.load('en_vectors_web_lg')
-                else:
+                if(self.language == 'spanish'):
                     word_vectors_nlp = spacy.load('es_core_news_md')
         if syn:
             print('Features: syn')
@@ -161,8 +161,12 @@ class ComplexityClassifier(object):
             if word_emb:
                 if test:
                     instance_features += list(word_vectors_nlp(target_phrase).vector)
+                    #print(instance_features)  
                 else:
                     instance_features += self.get_word_emb(target_phrase)
+
+                if all(v == 0.0 for v in instance_features):
+                    n += 1
             if syn:
                 if(self.language == 'english'):
                     instance_features += [self.get_number_syn(target_phrase)]
@@ -175,9 +179,7 @@ class ComplexityClassifier(object):
             if NE:
                 f = [ent.label for ent in self.nlp(target_phrase).ents]
                 if not f: #target phrase is not in ents
-                    f = [0.0]
-                else:
-                    n += 1        #jopp
+                    f = [0.0]      #jopp
                 instance_features += f
             # if i == len(data)-1:
             #     print(n)
