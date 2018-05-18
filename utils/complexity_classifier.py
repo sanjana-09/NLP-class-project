@@ -8,6 +8,7 @@ import spacy,nltk,csv,math
 from nltk.corpus import wordnet
 import file_io
 from scipy.sparse import coo_matrix, hstack, vstack
+import matplotlib.pyplot as plt
 import numpy as np
 
 class ComplexityClassifier(object):
@@ -112,7 +113,7 @@ class ComplexityClassifier(object):
 
 
     def extract_features(self,data, key, max_token_length, word_emb = False,
-        baseline = True, pos = False, unigram_probs = False,unigram_freq = False, 
+        baseline = False, pos = False, unigram_probs = False,unigram_freq = False, 
         NE = False, syn = False, test = False):
         if baseline:
             #print('here in baseline')

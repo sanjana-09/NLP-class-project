@@ -1,0 +1,70 @@
+Lexical
+simplification involves replacing specific words
+in order to reduce lexical complexity, while still
+conveying the same information. Lexical simplifi-
+cation is still a challenging task as identifying and
+simplifying complex words in a given context is not
+straightforward. Complex word identification is the
+first step towards lexical simplification
+
+
+Tables: logistic regression, svc balanced
+features:
+baseline
+baseline + unigram prob
+baseline+ word emb (might not do this?)
+baseline + unigram prob+ word emb
+baseline +unigram prob + word emb+ number of syn
+baseline +unigram prob +word emb +number of syn +pos
+
+Reason to use language independent features:
+(https://www.inf.uni-hamburg.de/en/inst/ab/lt/publications/2017-yimametal-ranlp.pdf)
+The  problem  of  those  best  performing  sys-
+tems is that their features cannot be obtained for
+other  languages,  as  the  lexicons  used  and  Sim-
+ple  Wikipedia  do  not  exist  for  other  languages
+than English.  Therefore, we propose a language-
+independent   set   of   features   and   build   fully-
+automated  CWI  systems  using  those  features,
+which perform en par with the best SemEval-2016
+shared task systems.  Furthermore, we show that
+our  systems,  taking  advantage  of  the  language-
+independent  set  of  features,  can  even  be  trained
+on one language and successfully applied on CWI
+task in a different language
+
+http://www.aclweb.org/anthology/S16-1085
+The recall for a particular class is a measure that quantifies how well a system correctly classifies samples belonging to that class. 
+Thus if it is preferable for simple words to be misclassified as complex as opposed to complex words/phrases being misclassified
+as simple then a higher recall for the complex class is the goal. The training sets given were imbalanced in terms of the number of 
+samples per class - the number of samples for the class `simple' were much higher than the number of samples for `complex' class.
+This resulted in the recall for the simple class being much higher than the recall for complex class when using the Logistic Regression classifier. The solution to this issue lay in using a classifier which could take into account this imbalance in the dataset such as the SVM.
+The `class_weight' parameter for the Scikit-Learn's implementation of the SVM was used to tune class weights based on their corresponding proportions in the dataset. Counter({'0': 16046, '1': 11253}) - English, ({'0': 8295, '1': 5455}) - Spanish
+
+Recall affected by using balanced svm for english and for spanish and importance of recall
+precision affected by using balanced svm for englisha and for spanish and the importance of precision - i.e. when is precision important?
+
+--not using pos for testing cause doesn't help, talk about ne and unigram freq not working a well as unigram prob of lowest also not working.
+Future work:
+
+Future work: document frequency - those other corpuses, abstractness feature
+
+NE:
+English: only 3601 sentences hd target words for which named entities could be obtained out of 27299
+Spanish: 2486 out of 13750 --- check results for spanish too? use svc
+
+MENTION:
+corpus and sysnset details for spanish
+
+Differences between english and spanish:
+other than baseline scores, (and maybe unigram probs, all other features ~(particularly word emb) lead to a much greater improvement in
+scores for english than spanish - this can be attributed to the fact that the number of words for which word embeddings exist are much
+greater for english than for spanish -- find out how many dev instances had embeddings for both english and spanish.
+The imbalance between recall for complex and simple class with log reg is consistently greater for spanish than for english, balanced svm even more useful - for english, using word embeddings reduced this imbalance way more than ut did for spanish
+
+
+Abstract:
+mention best feature combination for test set for both languages and individual scores for both languages
+
+
+Error analysis: phrases with more than one word would have lower prob cause multiplied - classed as complex.
