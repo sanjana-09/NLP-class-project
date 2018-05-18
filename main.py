@@ -61,8 +61,8 @@ def execute(language, test_size = 3328,max_token_length =  303, word_emb = False
         val_features,n = complexity_classifier.extract_features(data.devset,'target_word',MAX_TOKEN_LENGTH, 
         word_emb = word_emb, baseline = baseline, pos = pos, unigram_probs = unigram_probs, 
         syn = syn, NE = NE, test = True)
-        # complexity_classifier.train(train_features, train_labels)
-        # predictions = complexity_classifier.test(val_features)
+        complexity_classifier.train(train_features, train_labels)
+        predictions = complexity_classifier.test(val_features)
         # print('instance\t','correct label\t','predicted label\t')
         # for i in range(len(predictions)):
         #     if val_labels[i] != predictions[i]:
@@ -79,12 +79,12 @@ def execute(language, test_size = 3328,max_token_length =  303, word_emb = False
 
 
         # #predictions = complexity_classifier.test(val_features)
-        #report_score(val_labels, predictions, detailed = True)
+        report_score(val_labels, predictions, detailed = True)
 
-        train_features = vstack([train_features, val_features])
-        train_labels+=val_labels
-        cv = ShuffleSplit(n_splits=1, test_size=test_size, random_state=0)
-        return file_io.plot_learning_curve(LogisticRegression(), train_features, train_labels, cv = cv)
+        # train_features = vstack([train_features, val_features])
+        # train_labels+=val_labels
+        # cv = ShuffleSplit(n_splits=1, test_size=test_size, random_state=0)
+        # return file_io.plot_learning_curve(LogisticRegression(), train_features, train_labels, cv = cv)
 
     return train_and_test(train_labels,val_labels,max_token_length =  303, word_emb = word_emb, unigram_probs = unigram_probs, baseline = baseline, test_size = test_size)
 
